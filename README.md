@@ -29,11 +29,6 @@
 #### 3 - Visualizar
   - Abre o navegador e busque por [local](http://localhost:3000/)
 
-
-#### Examples: 
-  - https://olaolu.dev/
-  - https://mattfarley.ca/
-
 #### Testes 
 
   - https://medium.com/@ujjwaltiwari2/a-guide-to-using-openstreetmap-with-react-70932389b8b1
