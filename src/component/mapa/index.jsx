@@ -10,7 +10,7 @@ import Route from '../route';
 // Custom hook to handle map updates
 const MapUpdater = ({ location }) => {
   const map = useMap();
-  
+
   useEffect(() => {
     if (location && location.latitude && location.longitude) {
       map.setView([location.latitude, location.longitude], 14);
@@ -33,11 +33,11 @@ const formatDate = (date) => {
 };
 
 const Map = ({ markers, location, error }) => {
-  
+
   return (
-    <MapContainer 
-      center={[location.latitude, location.longitude]} 
-      zoom={14} 
+    <MapContainer
+      center={[location.latitude, location.longitude]}
+      zoom={14}
       style={{ height: '100vh', width: '100%' }}
       key={`${location.latitude}-${location.longitude}`} // Ensure map re-renders with location change
     >
@@ -46,7 +46,7 @@ const Map = ({ markers, location, error }) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
 
-      {markers && markers.map((marker, index) => ( 
+      {Array.isArray(markers) && markers.map((marker, index) => (
         <CustomMarker key={index} position={marker.ultima_posicao.coords}>
           <Popup>
             <h4>Modelo: {marker.model}</h4>

@@ -5,16 +5,20 @@ import { fetchApi } from '@/utils/fetchAPI';
 import dynamic from 'next/dynamic';
 import { useQuery } from "react-query";
 import Localization from "@/component/localization";
+import { useState } from 'react';
 
 // Componente que utiliza `window`
 const Mapa = dynamic(() => import('@/component/mapa'), { ssr: false });
 
 export default function Home() {
+  const [selectedModel, setSelectedModel] = useState(null);
+  const [selectedDataInitial, setSelectedDataInitial] = useState(null);
+  const [selectedDataLast, setSelectedDataLast] = useState(null);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["getRastreador"],
     queryFn: async () => {
-      const response = await fetchApi("/posicoes?data_inicial=2024-08-07T19%3A06%3A34.000Z&data_final=2024-08-07T19%3A20%3A34.000Z&model=1610025778", "GET");
+      const response = await fetchApi("/posicoes", "GET");
       return response;
     },
     enabled: true,  // Enable automatic fetching

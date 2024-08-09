@@ -20,27 +20,35 @@ import {
 const Mapa = dynamic(() => import('@/component/mapa'), { ssr: false });
 
 export default function Home() {
+  // Guarda o model do rastreador
   const [selectedModel, setSelectedModel] = useState(null);
+  // Guarda todos os models dos rastreadores
+  const [guardarDadosModel, setGuardarDadosModel] = useState([]);
 
+  // Realiza fetch com lógica para alterar caso precise, por exemplo pegar todos os rastreadores ou somente o selecionado
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["getRastreador"],
+    queryKey: ["getRastreador", selectedModel],
     queryFn: async () => {
-      const response = await fetchApi("/rastreadores", "GET");
+      // Condicional para verificar se `selectedModel` está presente
+      const endpoint = selectedModel
+        ? `/rastreadores/${selectedModel}` // Altere a URL conforme sua API
+        : "/rastreadores";
+
+      const response = await fetchApi(endpoint, "GET");
+
+      // Guarda os dados do fetch inicial, somente se não houver um modelo selecionado
+      if (!selectedModel && Array.isArray(response?.data)) {
+        setGuardarDadosModel(response.data);  // Armazena os dados da primeira requisição
+      }
+
       return response;
     },
     enabled: true,  // Enable automatic fetching
     refetchInterval: 1000, // Refetch every second
   });
 
-  console.log(data);
-
-  const markers = data?.data || []; // Verificar se data é um array antes de passar para Map
+  const markers = Array.isArray(data?.data) ? data.data : [data?.data].filter(Boolean);
   const { location, error: locationError } = Localization(); // Usando o hook
-
-  // Filtrar markers com base no modelo selecionado
-  const filteredMarkers = selectedModel
-    ? markers.filter((item) => item.model === selectedModel)
-    : markers;
 
   return (
     <>
@@ -55,10 +63,8 @@ export default function Home() {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Models</SelectLabel>
-                  <SelectItem value={null}>
-                    Todos os Modelos
-                  </SelectItem>
-                  {markers.map((item, index) => (
+                  <SelectItem value={null}>Todos os Modelos</SelectItem>
+                  {Array.isArray(guardarDadosModel) && guardarDadosModel.map((item, index) => (
                     <SelectItem key={index} value={item.model}>
                       {item.model}
                     </SelectItem>
@@ -69,7 +75,7 @@ export default function Home() {
           </div>
         </div>
         <div className='w-9/12 justify-end'>
-          <Map markers={filteredMarkers} location={location} error={locationError} />
+          <Map markers={markers} location={location} error={locationError} />
         </div>
       </div>
     </>
