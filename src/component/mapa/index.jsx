@@ -49,7 +49,7 @@ const Map = ({ markers, location, error }) => {
       {Array.isArray(markers) && markers.map((marker, index) => (
         <CustomMarker key={index} position={marker.ultima_posicao.coords}>
           <Popup>
-            <h4>Modelo: {marker.model}</h4>
+            <h4>Serial: {marker.serial}</h4>
             <h4 className="decoration-gray-50" >Data: {formatDate(marker.data_conectado)}</h4>
             <h4>Velocidade: {marker.ultima_posicao.vel}km/h</h4>
           </Popup>
