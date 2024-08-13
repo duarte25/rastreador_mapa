@@ -53,27 +53,21 @@ export default function Home() {
       if (newItems.length < LIMIT) {
         setHasMore(false); // Não há mais itens para carregar
       }
-      setResponse(prev => [...prev, ...newItems]); // Adiciona novos itens à lista existente
+      setResponse(prev => currentPage === 1 ? newItems : [...prev, ...newItems]); // Adiciona novos itens à lista existente, ou reinicia se for a primeira página
     });
   };
 
   const debouncedApiCall = useCallback(debounce(async (inputValue = '') => {
     setPage(1); // Reset page quando uma nova busca é realizada
     setHasMore(true); // Reset hasMore quando uma nova busca é realizada
-    setResponse([]); // Limpa a resposta antes de uma nova busca
 
-    if (inputValue.length >= MIN_SEARCH_LENGTH) {
-      fetchMoreItems(1, inputValue); // Busca novos itens a partir da primeira página
-    } else {
-      fetchMoreItems(1, ''); // Carrega os primeiros itens sem filtro
-    }
+    fetchMoreItems(1, inputValue); // Busca novos itens a partir da primeira página
   }, 2000), [startTransitionApiCall]);
 
   useEffect(() => {
     // Fetch initial data when Popover opens
     if (open) {
       setPage(1);
-      setResponse([]);
       setHasMore(true);
       fetchMoreItems(1, searchTerm);
     }
@@ -86,6 +80,12 @@ export default function Home() {
   const handleModelChange = (value) => {
     setSelectedModel(value);
     setOpen(false);
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedApiCall(value);
   };
 
   const handleScrollEvent = useCallback(debounce(() => {
@@ -121,19 +121,17 @@ export default function Home() {
               </PopoverTrigger>
               <PopoverContent className='w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0'>
                 <Command>
-                  <div className="flex items-center gap-1 py-2 px-2 border-b border-zinc-300">
+                  <div className='flex items-center gap-1 py-2 px-2 border-b border-zinc-300'>
                     <Search className='w-[16px] text-zinc-400' />
                     <input
-                      type="text"
-                      className="w-full focus:outline-none text-sm p-1"
+                      type='text'
+                      className='w-full focus:outline-none text-sm p-1'
                       placeholder='Buscar rastreador...'
-                      onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        debouncedApiCall(e.target.value);
-                      }}
+                      onChange={handleInputChange}
                       autoFocus
                       autoComplete='off'
                       disabled={isPendingApiCall}
+                      value={searchTerm}
                     />
                   </div>
 
