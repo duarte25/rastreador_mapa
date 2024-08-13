@@ -1,46 +1,53 @@
-"use client";
+"use client"; // Indica que este arquivo será executado no cliente (client-side rendering).
 
-import Map from '@/component/mapa';
-import { fetchApi } from '@/utils/fetchAPI';
-import dynamic from 'next/dynamic';
-import { useEffect, useRef, useState, useCallback, useTransition } from 'react';
-import { useQuery } from 'react-query';
-import Localization from '@/component/localization';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandGroup, CommandItem, CommandList, CommandEmpty } from '@/components/ui/command';
-import { Check, ChevronsUpDown, Search, Loader2 } from 'lucide-react';
-import debounce from 'lodash/debounce';
+import Map from '@/component/mapa'; // Importa o componente do mapa.
+import { fetchApi } from '@/utils/fetchAPI'; // Importa a função de requisição à API.
+import dynamic from 'next/dynamic'; // Importa a função para carregar componentes dinamicamente.
+import { useEffect, useRef, useState, useCallback, useTransition } from 'react'; // Importa hooks do React.
+import { useQuery } from 'react-query'; // Importa o hook para fazer consultas assíncronas com cache.
+import Localization from '@/component/localization'; // Importa o componente de localização.
+import { Button } from '@/components/ui/button'; // Importa o componente de botão.
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'; // Importa componentes de popover (menu flutuante).
+import { Command, CommandGroup, CommandItem, CommandList, CommandEmpty } from '@/components/ui/command'; // Importa componentes relacionados ao comando de busca.
+import { Check, ChevronsUpDown, Search, Loader2 } from 'lucide-react'; // Importa ícones da biblioteca Lucide.
+import debounce from 'lodash/debounce'; // Importa a função de debounce da biblioteca Lodash.
 
+// Carrega o componente de mapa dinamicamente para evitar SSR (Server-Side Rendering).
 const Mapa = dynamic(() => import('@/component/mapa'), { ssr: false });
 
 export default function Home() {
+  // Define o estado para o modelo selecionado, termo de busca, abertura do popover, resposta da API, página atual, controle de mais itens e estado de chamada de API.
   const [selectedModel, setSelectedModel] = useState('Todos os rastreadores');
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
   const [response, setResponse] = useState([]);
-  const [page, setPage] = useState(1); // Página inicial
-  const [hasMore, setHasMore] = useState(true); // Controle de mais itens
-  const [isPendingApiCall, startTransitionApiCall] = useTransition();
-  const listRef = useRef();
+  const [page, setPage] = useState(1); // Página inicial.
+  const [hasMore, setHasMore] = useState(true); // Controle de mais itens a carregar.
+  const [isPendingApiCall, startTransitionApiCall] = useTransition(); // Hook para transição suave de estado.
+  const listRef = useRef(); // Referência à lista de itens no popover.
 
-  const MIN_SEARCH_LENGTH = 3;
-  const LIMIT = 10; // Limite de itens por página
+  const MIN_SEARCH_LENGTH = 3; // Comprimento mínimo do termo de busca.
+  const LIMIT = 10; // Limite de itens por página.
 
+  // Utiliza o useQuery para buscar dados da API conforme o modelo selecionado.
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['getRastreador', selectedModel],
+    queryKey: ['getRastreador', selectedModel], // Chave única para a consulta.
     queryFn: async () => {
       const endpoint = selectedModel && selectedModel !== 'Todos os rastreadores' ? `/rastreadores?serial=${selectedModel}` : '/rastreadores';
       const response = await fetchApi(endpoint, 'GET');
       return response;
     },
-    enabled: !!selectedModel,
-    refetchInterval: 1000,
+    enabled: !!selectedModel, // Habilita a consulta apenas se houver um modelo selecionado.
+    refetchInterval: 1000, // Intervalo para refazer a consulta (1 segundo).
   });
 
-  const markers = Array.isArray(data?.data) ? data.data : [data?.data].filter(Boolean);
-  const { location, error: locationError } = Localization();
+  console.log("DADOS data", data);
 
+  // Processa os dados recebidos, garantindo que o formato seja um array de marcadores.
+  const markers = Array.isArray(data?.data) ? data.data : [data?.data].filter(Boolean);
+  const { location, error: locationError } = Localization(); // Obtém a localização atual e possíveis erros.
+
+  // Função para buscar mais itens da API ao rolar a lista.
   const fetchMoreItems = async (currentPage, currentSearchTerm) => {
     let url = `/rastreadores?pagina=${currentPage}&limite=${LIMIT}`;
     if (currentSearchTerm && currentSearchTerm.length >= MIN_SEARCH_LENGTH) {
@@ -51,51 +58,55 @@ export default function Home() {
       const response = await fetchApi(url, 'GET');
       const newItems = response?.data || [];
       if (newItems.length < LIMIT) {
-        setHasMore(false); // Não há mais itens para carregar
+        setHasMore(false); // Define como falso se não houver mais itens para carregar.
       }
-      setResponse(prev => currentPage === 1 ? newItems : [...prev, ...newItems]); // Adiciona novos itens à lista existente, ou reinicia se for a primeira página
+      setResponse(prev => currentPage === 1 ? newItems : [...prev, ...newItems]); // Adiciona novos itens à lista ou reinicia se for a primeira página.
     });
   };
 
+  // Debounce para limitar a quantidade de chamadas à API quando o termo de busca é alterado.
   const debouncedApiCall = useCallback(debounce(async (inputValue = '') => {
-    setPage(1); // Reset page quando uma nova busca é realizada
-    setHasMore(true); // Reset hasMore quando uma nova busca é realizada
-
-    fetchMoreItems(1, inputValue); // Busca novos itens a partir da primeira página
+    setPage(1); // Reseta a página quando uma nova busca é realizada.
+    setHasMore(true); // Reseta o controle de mais itens.
+    fetchMoreItems(1, inputValue); // Busca novos itens a partir da primeira página.
   }, 2000), [startTransitionApiCall]);
 
+  // Efeito para carregar dados iniciais quando o popover é aberto.
   useEffect(() => {
-    // Fetch initial data when Popover opens
     if (open) {
       setPage(1);
       setHasMore(true);
-      fetchMoreItems(1, searchTerm);
+      fetchMoreItems(1, searchTerm); // Carrega itens ao abrir o popover.
     }
 
     return () => {
-      debouncedApiCall.cancel();
+      debouncedApiCall.cancel(); // Cancela chamadas pendentes do debounce ao desmontar o componente.
     };
   }, [debouncedApiCall, open]);
 
+  // Função para alterar o modelo selecionado.
   const handleModelChange = (value) => {
     setSelectedModel(value);
-    setOpen(false);
+    setOpen(false); // Fecha o popover após selecionar um modelo.
   };
 
+  // Função para atualizar o termo de busca e iniciar a chamada debounced.
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    debouncedApiCall(value);
+    debouncedApiCall(value); // Inicia a chamada debounce.
   };
 
+  // Função para lidar com o evento de rolagem e carregar mais itens se necessário.
   const handleScrollEvent = useCallback(debounce(() => {
     if (listRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = listRef.current;
 
+      // Verifica se o usuário chegou ao final da lista e se há mais itens para carregar.
       if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore) {
         const nextPage = page + 1;
         setPage(nextPage);
-        fetchMoreItems(nextPage, searchTerm);
+        fetchMoreItems(nextPage, searchTerm); // Carrega mais itens para a próxima página.
       }
     }
   }, 200), [page, searchTerm, hasMore]);
