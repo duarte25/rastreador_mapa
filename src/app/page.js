@@ -10,17 +10,18 @@ import { Command, CommandGroup, CommandItem, CommandList, CommandEmpty } from '@
 import { Check, ChevronsUpDown, Search, Loader2 } from 'lucide-react';
 import debounce from 'lodash/debounce';
 
-const Mapa = dynamic(() => import('@/component/mapa'), { ssr: false });
+const Map = dynamic(() => import('@/component/mapa'), { ssr: false });
 
 export default function Home() {
-  const [selectedModel, setSelectedModel] = useState('Todos os rastreadores');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [open, setOpen] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [selectedVehicle, setSelectedVehicle] = useState('Todos os rastreadores'); // Variavel de estado feita para alocar os rastreadores ou somente um se necéssario
+  const [searchTerm, setSearchTerm] = useState(''); // Variavel de estado criada para alocar a pesquisa feita iniciando em vazia
+  const [open, setOpen] = useState(false); // Variavel para definir se está aberta ou fechada o comobox
+  const [page, setPage] = useState(1); // Define as páginas
+  const [hasMore, setHasMore] = useState(true); // Variavel definida para criar o scroll infinito
   const [isPendingApiCall, startTransitionApiCall] = useTransition();
   const listRef = useRef();
 
+  const dateOfLastFetch = useRef();
   const [response, setResponse] = useState([]);
   const prevResponseRef = useRef([]); // Armazena a lista completa de rastreadores
 
@@ -28,31 +29,35 @@ export default function Home() {
   const LIMIT = 10;
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['getRastreador', selectedModel],
+    queryKey: ['getVehicle', selectedVehicle],
     queryFn: async () => {
-      const endpoint = selectedModel && selectedModel !== 'Todos os rastreadores'
-        ? `/rastreadores?serial=${selectedModel}`
+      const endpoint = selectedVehicle && selectedVehicle !== 'Todos os rastreadores'
+        ? `/rastreadores?serial=${selectedVehicle}`
         : '/rastreadores';
 
       // Obtém a maior data de `createdAt` da lista completa
-      let maiorData = prevResponseRef.current.length > 0
-        ? prevResponseRef.current.reduce((prev, current) => {
-          let createdAt = new Date(current.ultima_posicao.createdAt);
-          return !prev || createdAt > prev ? createdAt : prev;
-        }, null)
-        : new Date();
+      // let biggestDate = prevResponseRef.current.length > 0
+      //   ? prevResponseRef.current.reduce((prev, current) => {
+      //     let createdAt = new Date(current.ultima_posicao.createdAt);
+      //     return !prev || createdAt > prev ? createdAt : prev;
+      //   }, null)
+      //   : new Date();
+      let dateQuery = dateOfLastFetch.current;
+      dateOfLastFetch.current = new Date();
 
       let response;
       let updatedData;
-      if (data === undefined || data.length === 0) {
-        // Faz a requisição com a `maiorData` apenas se já houver uma data anterior)
+      if (!dateQuery) {
+        // Faz a requisição com a `biggestDate` apenas se já houver uma data anterior)
         response = await fetchApi(endpoint, 'GET');
         updatedData = response.data;
       } else {
-        // Faz a requisição com a `maiorData` apenas se já houver uma data anterior
-        response = await fetchApi(endpoint + (maiorData ? `?&data_atualizado=${maiorData.toISOString()}` : ""), 'GET');
+        // Faz a requisição com a `biggestDate` apenas se já houver uma data anterior
+        response = await fetchApi(endpoint + `?&data_atualizado=${dateQuery.toISOString()}`, 'GET');
         updatedData = response.data;
       }
+
+      console.log(updatedData?.length);
 
       // Atualiza apenas os itens que foram modificados
       const updatedResponse = prevResponseRef.current.map(existingItem => {
@@ -72,7 +77,7 @@ export default function Home() {
       prevResponseRef.current = finalResponse; // Atualiza a lista completa no ref
       return { data: finalResponse };
     },
-    enabled: !!selectedModel,
+    enabled: !!selectedVehicle,
     refetchInterval: 1000,
   });
 
@@ -114,7 +119,7 @@ export default function Home() {
   }, [debouncedApiCall, open]);
 
   const handleModelChange = (value) => {
-    setSelectedModel(value);
+    setSelectedVehicle(value);
     setOpen(false);
   };
 
@@ -151,7 +156,7 @@ export default function Home() {
                   aria-expanded={open}
                   className="flex w-full p-1 px-2 min-h-10 h-auto justify-between"
                 >
-                  <span>{selectedModel || 'Selecione um rastreador'}</span>
+                  <span>{selectedVehicle || 'Selecione um rastreador'}</span>
                   <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                 </Button>
               </PopoverTrigger>
@@ -188,7 +193,7 @@ export default function Home() {
                         role='option'
                       >
                         <Check
-                          className={`mr-2 h-4 w-4 ${selectedModel === 'Todos os rastreadores' ? 'opacity-100' : 'opacity-0'}`}
+                          className={`mr-2 h-4 w-4 ${selectedVehicle === 'Todos os rastreadores' ? 'opacity-100' : 'opacity-0'}`}
                         />
                         Todos os rastreadores
                       </CommandItem>
@@ -199,7 +204,7 @@ export default function Home() {
                           role='option'
                         >
                           <Check
-                            className={`mr-2 h-4 w-4 ${selectedModel === item.serial ? 'opacity-100' : 'opacity-0'}`}
+                            className={`mr-2 h-4 w-4 ${selectedVehicle === item.serial ? 'opacity-100' : 'opacity-0'}`}
                           />
                           {item.serial}
                         </CommandItem>
@@ -213,7 +218,7 @@ export default function Home() {
           </div>
         </div>
         <div className='w-9/12 justify-end'>
-          <Mapa markers={markers} location={location} error={locationError} />
+          <Map markers={markers} location={location} error={locationError} />
         </div>
       </div>
     </>
