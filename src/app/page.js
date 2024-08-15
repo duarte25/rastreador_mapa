@@ -32,32 +32,22 @@ export default function Home() {
     queryKey: ['getVehicle', selectedVehicle],
     queryFn: async () => {
       const endpoint = selectedVehicle && selectedVehicle !== 'Todos os rastreadores'
-        ? `/rastreadores?serial=${selectedVehicle}`
-        : '/rastreadores';
+        ? `/rastreadores?serial=${selectedVehicle}&`
+        : '/rastreadores?&';
 
-      // Obtém a maior data de `createdAt` da lista completa
-      // let biggestDate = prevResponseRef.current.length > 0
-      //   ? prevResponseRef.current.reduce((prev, current) => {
-      //     let createdAt = new Date(current.ultima_posicao.createdAt);
-      //     return !prev || createdAt > prev ? createdAt : prev;
-      //   }, null)
-      //   : new Date();
       let dateQuery = dateOfLastFetch.current;
       dateOfLastFetch.current = new Date();
 
       let response;
       let updatedData;
-      if (!dateQuery) {
-        // Faz a requisição com a `biggestDate` apenas se já houver uma data anterior)
+      if (!dateQuery || selectedVehicle !== 'Todos os rastreadores') {
         response = await fetchApi(endpoint, 'GET');
         updatedData = response.data;
       } else {
-        // Faz a requisição com a `biggestDate` apenas se já houver uma data anterior
-        response = await fetchApi(endpoint + `?&data_atualizado=${dateQuery.toISOString()}`, 'GET');
+        response = await fetchApi(endpoint + `data_atualizado=${dateQuery.toISOString()}`, 'GET');
         updatedData = response.data;
       }
 
-      console.log(updatedData?.length);
 
       // Atualiza apenas os itens que foram modificados
       const updatedResponse = prevResponseRef.current.map(existingItem => {
@@ -72,6 +62,16 @@ export default function Home() {
 
       // Adiciona novos itens que não estavam na lista anterior
       const newItems = updatedData.filter(newItem => !prevResponseRef.current.some(item => item.serial === newItem.serial));
+
+      // Se selectedVehicle não for "Todos os rastreadores", filtra o resultado
+      if (selectedVehicle !== "Todos os rastreadores") {
+        const resultado = updatedData.find(item => item.serial === selectedVehicle);
+        if (resultado) {
+          return { data: [resultado] }; // Retorna o item encontrado
+        }
+        console.error("Nenhum resultado encontrado para o serial:", selectedVehicle);
+        return { data: [] }; // Retorna um array vazio se não encontrar o serial
+      }
 
       const finalResponse = [...updatedResponse, ...newItems];
       prevResponseRef.current = finalResponse; // Atualiza a lista completa no ref
@@ -104,7 +104,7 @@ export default function Home() {
     setPage(1);
     setHasMore(true);
     fetchMoreItems(1, inputValue);
-  }, 2000), [startTransitionApiCall]);
+  }, 1000), [startTransitionApiCall]);
 
   useEffect(() => {
     if (open) {
