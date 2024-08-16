@@ -8,17 +8,17 @@ import Localization from "@/component/localization";
 import { useState } from 'react';
 
 // Componente que utiliza `window`
-const Mapa = dynamic(() => import('@/component/mapa'), { ssr: false });
+const Map = dynamic(() => import('@/component/linha'), { ssr: false });
 
 export default function Home() {
-  const [selectedModel, setSelectedModel] = useState(null);
-  const [selectedDataInitial, setSelectedDataInitial] = useState(null);
-  const [selectedDataLast, setSelectedDataLast] = useState(null);
-
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["getRastreador"],
     queryFn: async () => {
-      const response = await fetchApi("/posicoes", "GET");
+      const response = await fetchApi("/posicoes", "GET", {
+        data_inicial: "2024-08-16T18:45:41.000Z",
+        // data_final: "2024-08-14T19:00:30.000",
+        serial: "BOT_000017"
+      });
       return response;
     },
     enabled: true,  // Enable automatic fetching
@@ -27,13 +27,15 @@ export default function Home() {
 
   // Verificar se data é um array antes de passar para Map
   const markers = data?.data || []; // data?.data é o array de marcadores
+  for(let m of markers) {
+    m.ultima_posicao = m
+  }
   const { location, error: locationError } = Localization(); // Usando o hook
   
   return (
     <>
       <div>
-        <h1>Meu Mapa com Leaflet</h1>
-        <Linha markers={markers} location={location} error={locationError} />
+        <Map markers={markers} location={location} error={locationError} />
       </div>
     </>
   );

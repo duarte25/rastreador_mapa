@@ -2,13 +2,19 @@ import React from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Marker } from 'react-leaflet';
-import { FaMapPin } from 'react-icons/fa';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { FaCarSide } from "react-icons/fa";
+import { LuAlertTriangle } from "react-icons/lu";
 
-const CustomMarker = ({ position, children }) => {
+const CustomMarker = ({ position, children, connected }) => {
+  
   // Renderiza o ícone como uma string SVG
-  const svgMarkup = renderToStaticMarkup(<FaCarSide size={30} color="blue" />);
+  let svgMarkup = renderToStaticMarkup(<FaCarSide size={30} color="blue" />);
+
+  if (!connected) {
+    svgMarkup = renderToStaticMarkup(<FaCarSide size={30} color="#777" />);
+  }
+  
   const svgUrl = `data:image/svg+xml;base64,${btoa(svgMarkup)}`;
 
   const customIcon = L.icon({

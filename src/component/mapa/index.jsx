@@ -5,7 +5,6 @@ import CustomMarker from '../customMaker';
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR'; // Importar locale se você precisa de data em português
-import Route from '../route';
 
 // Custom hook to handle map updates
 const MapUpdater = ({ location }) => {
@@ -47,7 +46,7 @@ const Map = ({ markers, location, error }) => {
       />
 
       {Array.isArray(markers) && markers.map((marker, index) => (
-        <CustomMarker key={index} position={marker.ultima_posicao.coords}>
+        <CustomMarker key={index} position={marker.ultima_posicao.coords} connected={marker.conectado}>
           <Popup>
             <h4>Serial: {marker.serial}</h4>
             <h4 className="decoration-gray-50" >Data: {formatDate(marker.data_conectado)}</h4>
