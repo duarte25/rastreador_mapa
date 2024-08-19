@@ -5,6 +5,7 @@ import CustomMarker from '../customMaker';
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR'; // Importar locale se você precisa de data em português
+import FormattedDate from '../realTimeTrackers/formattedDate';
 
 // Custom hook to handle map updates
 const MapUpdater = ({ location }) => {
@@ -19,19 +20,7 @@ const MapUpdater = ({ location }) => {
   return null;
 };
 
-// Function to format date to a more readable format
-const formatDate = (date) => {
-  if (!date) return 'Data não disponível';
-
-  try {
-    const dateObj = new Date(date);
-    return format(dateObj, "d 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR }); // Format in Portuguese
-  } catch (error) {
-    return 'Formato de data inválido';
-  }
-};
-
-const Linha = ({ markers = [], location, error }) => {
+const HistoryTracker = ({ markers = [], location, error }) => {
   // Cria um array de pares de coordenadas para desenhar as linhas
   const routes = markers.map((marker, index) => {
     if (index < markers.length - 1) {
@@ -59,7 +48,7 @@ const Linha = ({ markers = [], location, error }) => {
       {markers.map((marker, index) => (
         <CustomMarker key={index} position={marker.coords}>
           <Popup>
-            <h4 className="decoration-gray-50">Data: {formatDate(marker.data)}</h4>
+            <h4 className="decoration-gray-50">Data: <FormattedDate date={marker.data} /></h4>
             <h4>Velocidade: {marker.vel}km/h</h4>
           </Popup>
         </CustomMarker>
@@ -70,7 +59,7 @@ const Linha = ({ markers = [], location, error }) => {
   );
 };
 
-Linha.propTypes = {
+HistoryTracker.propTypes = {
   markers: PropTypes.arrayOf(
     PropTypes.shape({
       coords: PropTypes.arrayOf(PropTypes.number).isRequired,
@@ -85,4 +74,4 @@ Linha.propTypes = {
   error: PropTypes.string
 };
 
-export default Linha;
+export default HistoryTracker;

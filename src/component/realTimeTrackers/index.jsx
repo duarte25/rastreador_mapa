@@ -3,8 +3,7 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import CustomMarker from '../customMaker';
 import PropTypes from 'prop-types';
-import { format } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR'; // Importar locale se você precisa de data em português
+import FormattedDate from './formattedDate';
 
 // Custom hook to handle map updates
 const MapUpdater = ({ location }) => {
@@ -19,19 +18,7 @@ const MapUpdater = ({ location }) => {
   return null;
 };
 
-// Function to format date to a more readable format
-const formatDate = (date) => {
-  if (!date) return 'Data não disponível';
-
-  try {
-    const dateObj = new Date(date);
-    return format(dateObj, "d 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR }); // Format in Portuguese
-  } catch (error) {
-    return 'Formato de data inválido';
-  }
-};
-
-const Map = ({ markers, location, error }) => {
+const RealTimeTrackers = ({ markers, location, error }) => {
 
   return (
     <MapContainer
@@ -49,7 +36,7 @@ const Map = ({ markers, location, error }) => {
         <CustomMarker key={index} position={marker.ultima_posicao.coords} connected={marker.conectado}>
           <Popup>
             <h4>Serial: {marker.serial}</h4>
-            <h4 className="decoration-gray-50" >Data: {formatDate(marker.data_conectado)}</h4>
+            <h4 className="decoration-gray-50" >Data: <FormattedDate date={marker.data_conectado}/></h4>
             <h4>Velocidade: {marker.ultima_posicao.vel}km/h</h4>
           </Popup>
         </CustomMarker>
@@ -61,7 +48,7 @@ const Map = ({ markers, location, error }) => {
   );
 };
 
-Map.propTypes = {
+RealTimeTrackers.propTypes = {
   markers: PropTypes.arrayOf(
     PropTypes.shape({
       latitude: PropTypes.number.isRequired,
@@ -76,6 +63,4 @@ Map.propTypes = {
   error: PropTypes.string
 };
 
-export default Map;
-
-//     {/* <Route source={source} destination={destination} /> */}
+export default RealTimeTrackers;
