@@ -16,12 +16,16 @@ const InputDate = dynamic(() => import('@/component/inputDate'), { ssr: false })
 export default function Home() {
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedDateInitial, setSelectedDateInitial] = useState(null)
+
+  // Converte selectedDateInitial para um objeto Date (opcional)
+  const dateConvertInitial = new Date(selectedDateInitial);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['getVehicle', selectedVehicle],
+    queryKey: ['getVehicle', selectedVehicle, selectedDateInitial],
     queryFn: async () => {
       const response = await fetchApi("/posicoes", "GET", {
-        data_inicial: "2024-08-19T18:45:41.000Z",
+        data_inicial: dateConvertInitial.toISOString(),
         // data_final: "2024-08-14T19:00:30.000",
         serial: selectedVehicle
       });
@@ -47,7 +51,9 @@ export default function Home() {
             selectedVehicle={selectedVehicle}
             setSelectedVehicle={setSelectedVehicle}
           />
-          <InputDate />
+          <InputDate
+            selectedDateInitial={selectedDateInitial}
+            setSelectedDateInitial={setSelectedDateInitial} />
         </div>
       </div>
       <div className='w-9/12 justify-end'>

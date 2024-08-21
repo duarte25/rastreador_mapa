@@ -46,7 +46,7 @@ const HistoryTracker = ({ markers = [], location, error }) => {
       ))}
 
       {markers.map((marker, index) => (
-        <CustomMarker key={index} position={marker.coords}>
+        <CustomMarker key={index} position={marker.coords} connected={true}>
           <Popup>
             <h4 className="decoration-gray-50">Data: <FormattedDate date={marker.data} /></h4>
             <h4>Velocidade: {marker.vel}km/h</h4>
