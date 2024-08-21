@@ -3,8 +3,7 @@ import { MapContainer, Popup, TileLayer, useMap, Polyline } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import CustomMarker from '../customMaker';
 import PropTypes from 'prop-types';
-import { format } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR'; // Importar locale se você precisa de data em português
+import { FaLocationPin } from "react-icons/fa6";
 import FormattedDate from '../realTimeTrackers/formattedDate';
 
 // Custom hook to handle map updates
@@ -46,7 +45,7 @@ const HistoryTracker = ({ markers = [], location, error }) => {
       ))}
 
       {markers.map((marker, index) => (
-        <CustomMarker key={index} position={marker.coords} connected={true}>
+        <CustomMarker key={index} position={marker.coords} connected={true} icon={FaLocationPin}>
           <Popup>
             <h4 className="decoration-gray-50">Data: <FormattedDate date={marker.data} /></h4>
             <h4>Velocidade: {marker.vel}km/h</h4>

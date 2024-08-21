@@ -6,15 +6,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { FaCarSide } from "react-icons/fa";
 import { LuAlertTriangle } from "react-icons/lu";
 
-const CustomMarker = ({ position, children, connected }) => {
-  
+const CustomMarker = ({ position, children, connected, icon: Icon }) => {
   // Renderiza o ícone como uma string SVG
-  let svgMarkup = renderToStaticMarkup(<FaCarSide size={30} color="blue" />);
+  let svgMarkup = renderToStaticMarkup(<Icon size={30} color={connected ? "blue" : "#777"} />);
 
-  if (!connected) {
-    svgMarkup = renderToStaticMarkup(<FaCarSide size={30} color="#777" />);
-  }
-  
   const svgUrl = `data:image/svg+xml;base64,${btoa(svgMarkup)}`;
 
   const customIcon = L.icon({
