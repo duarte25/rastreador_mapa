@@ -37,7 +37,7 @@ export default function InputDateTimeComponent({ selectedDate, setSelectedDate, 
         <Button
           variant="outline"
           className={cn(
-            'justify-start text-left font-normal',
+            'w-full justify-start text-left font-normal',
             !selectedDate && 'text-muted-foreground'
           )}
         >
@@ -49,7 +49,7 @@ export default function InputDateTimeComponent({ selectedDate, setSelectedDate, 
           </span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
         <Calendar
           mode="single"
           selected={selectedDate}
@@ -61,7 +61,7 @@ export default function InputDateTimeComponent({ selectedDate, setSelectedDate, 
             type="time"
             value={time}
             onChange={handleTimeChange}
-            className="border rounded px-2 py-1"
+            className="border rounded px-2 py-1 w-full text-sm"
           />
         </div>
       </PopoverContent>

@@ -28,7 +28,7 @@ export default function Home() {
   const { location, error: locationError } = Localization();
 
   return (
-    <div className='flex flex-row bg-purple-950'>
+    <div className='flex flex-row'>
       <div className='w-3/12 flex flex-col items-center'>
         <h1 className='pt-64 text-3xl text-lime-400 font-semibold tracking-widest'>Rastreador Controle de Frota</h1>
         <div className='pt-10 w-1/2'>
