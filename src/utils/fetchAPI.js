@@ -61,3 +61,37 @@ export const fetchApi = async (route, method, data, ...props) => {
     };
   }
 }
+
+export const fetchApiDespaginado = async (route, method, body, ...props) => {
+  let result = [];
+  let pagina = 1;
+  let maxPaginas = 100; // Só para não ir infinito (máximo 100 fetchs)
+  while(pagina < maxPaginas) {
+      const { data, ...fetchInfo } = await fetchApi(route, method, {
+          ...body,
+          ...{
+              pagina: pagina
+          }
+      }, ...props);
+
+      if(fetchInfo.error) {
+        return fetchInfo;
+      }
+
+      for(let item of data) {
+          result.push(item);
+      }
+
+      if(!fetchInfo.totalPaginas || pagina >= fetchInfo.totalPaginas) {
+        break;
+      }
+
+      pagina++;
+  }
+
+  return {
+    data: result,
+    error: false,
+    errors: []
+  };
+};

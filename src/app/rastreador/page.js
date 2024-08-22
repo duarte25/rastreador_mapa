@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchApi } from '@/utils/fetchAPI';
+import { fetchApi, fetchApiDespaginado } from '@/utils/fetchAPI';
 import dynamic from 'next/dynamic';
 import { useQuery } from "react-query";
 import Localization from "@/component/localization";
@@ -26,7 +26,8 @@ export default function Home() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['getVehicle', selectedVehicle, selectedDateInitial, selectedDateLast],
     queryFn: async () => {
-      const response = await fetchApi("/posicoes", "GET", {
+      //const response = await fetchApi("/posicoes", "GET", {
+        const response = await fetchApiDespaginado("/posicoes", "GET", {
         data_inicial: dateConvertInitial.toISOString(),
         data_final: dateConvertLast.toISOString(),
         // data_final: "2024-08-14T19:00:30.000",
