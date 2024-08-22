@@ -34,10 +34,15 @@ const RealTimeTrackers = ({ markers, location, error }) => {
       />
 
       {Array.isArray(markers) && markers.map((marker, index) => (
-        <CustomMarker key={index} position={marker.ultima_posicao.coords} connected={marker.conectado} icon={FaCarSide}>
+        <CustomMarker key={index} position={marker.ultima_posicao.coords}
+          connected={marker.conectado}
+          icon={FaCarSide}
+          colorIcon={"#155ECC"}
+          sizeIcon={25}
+          >
           <Popup>
             <h4>Serial: {marker.serial}</h4>
-            <h4 className="decoration-gray-50" >Data: <FormattedDate date={marker.data_conectado}/></h4>
+            <h4 className="decoration-gray-50" >Data: <FormattedDate date={marker.data_conectado} /></h4>
             <h4>Velocidade: {marker.ultima_posicao.vel}km/h</h4>
           </Popup>
         </CustomMarker>
