@@ -24,26 +24,26 @@ export default function Combobox({ selectedVehicle, setSelectedVehicle }) {
 
   const fetchMoreItems = async (page, searchTerm) => {
     if (page > totalPages) return; // Se a página atual for maior que o total de páginas, sair da função
-  
+
     let url = `/rastreadores?pagina=${page}&limite=${LIMIT}`;
     if (searchTerm && searchTerm.length >= MIN_SEARCH_LENGTH) {
       url += `&serial=${searchTerm}`;
     }
-  
+
     startTransitionApiCall(async () => {
       const response = await fetchApi(url, 'GET');
       const newItems = response?.data || [];
-  
+
       setTotalPages(response.totalPaginas); // Atualiza o total de páginas com o valor retornado pela API
       setCurrentPage(page); // Atualiza a página atual
-  
+
       if (newItems.length < LIMIT || page >= response.totalPaginas) {
         setHasMore(false); // Se for a última página, não há mais itens
       }
       setResponse(prev => page === 1 ? newItems : [...prev, ...newItems]);
     });
   };
-  
+
   const debouncedApiCall = useCallback(debounce(async (inputValue = '') => {
     setPage(1);
     setHasMore(true);
@@ -76,7 +76,7 @@ export default function Combobox({ selectedVehicle, setSelectedVehicle }) {
   const handleScrollEvent = useCallback(debounce(() => {
     if (listRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-  
+
       if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore) {
         const nextPage = currentPage + 1;
         if (nextPage <= totalPages) { // Verifica se ainda há páginas disponíveis
@@ -85,7 +85,7 @@ export default function Combobox({ selectedVehicle, setSelectedVehicle }) {
         }
       }
     }
-  }, 200), [currentPage, searchTerm, hasMore, totalPages]);  
+  }, 200), [currentPage, searchTerm, hasMore, totalPages]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -94,10 +94,10 @@ export default function Combobox({ selectedVehicle, setSelectedVehicle }) {
           variant='outline'
           role='combobox'
           aria-expanded={open}
-          className="flex w-full p-1 px-2 min-h-10 h-auto justify-between"
+          className='w-full justify-between text-left font-normal'
         >
           <span>{selectedVehicle || 'Selecione um rastreador'}</span>
-          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+          <ChevronsUpDown className='ml-2 h-4 opacity-50 mr-1' />
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0'>

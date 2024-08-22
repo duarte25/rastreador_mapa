@@ -36,7 +36,7 @@ export default function Home() {
       return response;
     },
     enabled: true,  // Enable automatic fetching
-    refetchInterval: 1000, // Refetch every second
+    // refetchInterval: 1000, // Refetch every second
   });
 
   // Verificar se data é um array antes de passar para Map
