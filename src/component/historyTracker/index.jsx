@@ -42,7 +42,7 @@ const HistoryTracker = ({ markers = [], location, error }) => {
       />
 
       {routes.map((route, index) => (
-        <Polyline key={index} positions={route} color="blue" />
+        <Polyline key={index} positions={route} color="#155ECC" />
       ))}
 
       {markers.map((marker, index) => {
@@ -53,10 +53,17 @@ const HistoryTracker = ({ markers = [], location, error }) => {
         // Escolhe o ícone com base na posição
         const icon = isFirst || isLast ? IoLocationSharp : TbPointFilled;
         // Define a cor com base na posição
-        const colorIcon = isFirst || isLast ? "red" : "blue";
+        const colorIcon = isFirst || isLast ? "#d61e0e" : "#155ECC";
+        const sizeIcon = isFirst || isLast ? 25 : 20;
+        const zIndexOffset = isFirst || isLast ? 1000 : 0; // Definindo um zIndexOffset alto para o primeiro e último marcador
 
         return (
-          <CustomMarker key={index} position={marker.coords} connected={true} icon={icon} colorIcon={colorIcon}>
+          <CustomMarker key={index} position={marker.coords} connected={true} 
+          icon={icon} 
+          colorIcon={colorIcon} 
+          sizeIcon={sizeIcon}
+          zIndexOffset={zIndexOffset} 
+          >
             <Popup>
               <h4 className="decoration-gray-50">Data: <FormattedDate date={marker.data} /></h4>
               <h4>Velocidade: {marker.vel}km/h</h4>
