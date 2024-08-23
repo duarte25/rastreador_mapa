@@ -1,26 +1,15 @@
+version: '3'
+
 services:
-  frota-front:
+  web:
+    image: frota-front-rastreio
     build: .
-    container_name: frota-front
     ports:
-      - "${EXPOSE_PORT}:3000"
+      - "3000:3000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
     environment:
-      PORT: "3000"
-
-      #API_URL: https://cidades-frotas-api.app.fslab.dev
-      # Antes de fazer o build, é necessário colocar as variáveis de ambiente abaixo no .env
-      #NEXT_PUBLIC_API_URL: https://cidades-frotas-api.app.fslab.dev
-
-      # VARIÁVEIS DA BIBLIOTECA NEXT AUTH -> A PRIMEIRA É A URL DO FRONT-END ACESSÍVEL, POR EXEMPLO: https://meu-sistema.com
-      #NEXTAUTH_URL: http://localhost:${EXPOSE_PORT}
-      #NEXTAUTH_SECRET: secretsupersecreto
-    networks:
-      - frota-network
-
-networks:
-  frota-network:
-    name: frotas-compose_fslab-network-frotas
-    external: true
-
-
-# docker compose up -d --build --force-recreate
+      - NODE_ENV=production
+    restart: always

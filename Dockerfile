@@ -1,68 +1,23 @@
-# https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
-# https://www.youtube.com/watch?v=dtLpWR98HfE
+# Use a imagem oficial do Node.js como base
+FROM node:20-alpine
 
-# ===============================================================
-# Primeiro estágio: Instalação das dependências
-# ===============================================================
-FROM node:20-alpine as estagio_deps
-
+# Defina o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Configura para que seja feito a instalação apenas 
-# das dependências de produção
-ENV NODE_ENV=production
+# Copie os arquivos package.json e package-lock.json
+COPY package*.json ./
 
-# Copiando apenas as definições das dependências
-COPY package.json package-lock.json ./
-# npm ci em vez de install, pois é o comando indicado para uma instalação do zero
-RUN npm ci
+# Instale as dependências de produção
+RUN npm install
 
-# ===============================================================
-# Segundo estágio: Fazer build
-# ===============================================================
-FROM node:20-alpine as estagio_build
-
-WORKDIR /app
-# Copia as dependências no outro estágio
-COPY --from=estagio_deps /app/node_modules ./node_modules
+# Copie o restante dos arquivos do projeto
 COPY . .
 
+# Execute a build de produção do Next.js
 RUN npm run build
 
-# ===============================================================
-# Production image, copy all the files and run next
-# ===============================================================
-FROM node:20-alpine AS estagio_final
-WORKDIR /app
-
-ENV NODE_ENV production
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=estagio_build /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=estagio_build --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=estagio_build --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-
+# Exponha a porta que a aplicação vai rodar (3000 no caso do Next.js)
 EXPOSE 3000
 
-ENV PORT 3000
-# set hostname to localhost
-ENV HOSTNAME "0.0.0.0"
-
-CMD ["node", "server.js"]
-
-# ===============================================================
-# Para buildar e rodar o container
-# ===============================================================
-# docker build -f Dockerfile -t blog .
-# docker run -d -p 3000:3000 blog
+# Comando para rodar a aplicação em produção
+CMD ["npm", "run", "start"]
