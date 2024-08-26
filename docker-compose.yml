@@ -1,15 +1,15 @@
-version: '3'
-
 services:
-  web:
+  front-rastreio:
+    container_name: front-rastreio
     image: frota-front-rastreio
-    build: .
+    build:
+      context: .
+      args:
+      # URL LADO CLIENTE (Precisa estar certo no build)
+        - NEXT_PUBLIC_API_URL=https://erick-3000.code.fslab.dev
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app
-    env_file:
-      - .env
     environment:
       - NODE_ENV=production
-    restart: always
+      - API_URL=https://erick-3000.code.fslab.dev
+    #restart: always
