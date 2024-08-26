@@ -6,6 +6,11 @@ import { useQuery } from "react-query";
 import Localization from "@/component/localization";
 import { useState } from 'react';
 import Combobox from '@/component/combobox';
+import { IoIosSearch } from 'react-icons/io';
+import Link from 'next/link';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { SiOpenstreetmap } from "react-icons/si";
 import Image from 'next/image';
 
 // Componente que utiliza `window`
@@ -14,7 +19,7 @@ const HistoryTracker = dynamic(() => import('@/component/historyTracker'), { ssr
 const InputDate = dynamic(() => import('@/component/inputDate'), { ssr: false });
 
 export default function Home() {
-
+  const [open, setOpen] = useState(true);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDateInitial, setSelectedDateInitial] = useState(null)
   const [selectedDateLast, setSelectedDateLast] = useState(null)
@@ -27,7 +32,7 @@ export default function Home() {
     queryKey: ['getVehicle', selectedVehicle, selectedDateInitial, selectedDateLast],
     queryFn: async () => {
       //const response = await fetchApi("/posicoes", "GET", {
-        const response = await fetchApiDespaginado("/posicoes", "GET", {
+      const response = await fetchApiDespaginado("/posicoes", "GET", {
         data_inicial: dateConvertInitial.toISOString(),
         data_final: dateConvertLast.toISOString(),
         // data_final: "2024-08-14T19:00:30.000",
@@ -47,10 +52,34 @@ export default function Home() {
   const { location, error: locationError } = Localization(); // Usando o hook
 
   return (
-    <div className='flex flex-row'>
-      <div className='w-3/12 flex flex-col items-center'>
-        <h1 className='pt-64 text-3xl text-slate-800 font-semibold tracking-widest'>Rastreador Controle de Frota</h1>
-        <div className='pt-10 w-1/2 flex content-center items-center justify-center flex-col gap-2'>
+    <div className='relative w-full h-screen'>
+      <div className='absolute inset-0 z-10'>
+        <HistoryTracker markers={markers} location={location} error={locationError} />
+      </div>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            className={`fixed top-1 left-16 z-10 w-1/6 h-14 text-slate-800
+              ${open ? 'bg-white border-t-2 border-gray-500 rounded-t-3xl border-b border-transparent' : 'bg-white border border-gray-300 rounded-3xl'}
+              hover:bg-white hover:border-gray-300`}  /* Manter a cor padrão ao passar o mouse */
+            onClick={() => setOpen(!open)}
+          >
+            <div className="flex flex-row items-center justify-between w-full px-4">
+              <a>Busque seu veículo</a>
+              <div className='flex flex-row gap-5'>
+                <IoIosSearch className='size-5' />
+                <Link href="/">
+                  <SiOpenstreetmap className='size-5 z-[50]' />
+                </Link>
+              </div>
+            </div>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className='z-[10] w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-5 -mt-1 
+          h-52 flex flex-col gap-5 justify-center'
+          sideOffset={5}
+        >
           <Combobox
             selectedVehicle={selectedVehicle}
             setSelectedVehicle={setSelectedVehicle}
@@ -66,13 +95,11 @@ export default function Home() {
             setSelectedDate={setSelectedDateLast}
             textPlacer={"Data final"} />
 
-          <Image className='pt-48 w-48' width={100} height={100} src='./logo.svg' alt='logo' />
+        </PopoverContent>
+      </Popover>
 
-        </div>
-      </div>
-      <div className='w-9/12 justify-end'>
-        <HistoryTracker markers={markers} location={location} error={locationError} />
-      </div>
-    </div>
+      <Image className='fixed bottom-10 left-20 transform -translate-x-1/2 z-[10]'
+        width={100} height={100} src='/smartcerejeiras.png' alt='logo' />
+    </div >
   );
 }

@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger, PopoverArrow } from '@/compone
 import { Button } from '@/components/ui/button';
 import { IoIosSearch } from "react-icons/io";
 import { FaRoute } from "react-icons/fa6";
+import Link from 'next/link';
 
 const RealTimeTrackers = dynamic(() => import('@/component/realTimeTrackers'), { ssr: false });
 
@@ -43,37 +44,35 @@ export default function Home() {
         <PopoverTrigger asChild>
           <Button
             className={`fixed top-1 left-16 z-10 w-1/6 h-14 text-slate-800
-            ${open ? 'bg-white border-t-2 border-gray-500 rounded-t-3xl border-b border-transparent' : 'bg-white border border-gray-300 rounded-3xl'}`}
+              ${open ? 'bg-white border-t-2 border-gray-500 rounded-t-3xl border-b border-transparent' : 'bg-white border border-gray-300 rounded-3xl'}
+              hover:bg-white hover:border-gray-300`}  /* Manter a cor padrão ao passar o mouse */
             onClick={() => setOpen(!open)}
           >
             <div className="flex flex-row items-center justify-between w-full px-4">
-              <a>Busque seu veículo...</a>
+              <a>Busque seu veículo</a>
               <div className='flex flex-row gap-5'>
-                <IoIosSearch className='size-5'/>
-                <FaRoute className='size-5'/>
+                <IoIosSearch className='size-5' />
+                <Link href="/rastreador">
+                  <FaRoute className='size-5 z-[50]' />
+                </Link>
               </div>
             </div>
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className='z-[10] w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0 -mt-1 
-          h-48 flex flex-col gap-5 justify-center'
+          className='z-[10] w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-5 -mt-1 
+          h-28 flex flex-col gap-5 justify-center'
           sideOffset={5}
         >
           <Combobox
             selectedVehicle={selectedVehicle}
             setSelectedVehicle={setSelectedVehicle}
           />
-          <Combobox
-            selectedVehicle={selectedVehicle}
-            setSelectedVehicle={setSelectedVehicle}
-          />
-          <Combobox
-            selectedVehicle={selectedVehicle}
-            setSelectedVehicle={setSelectedVehicle}
-          />
         </PopoverContent>
       </Popover>
+
+      <Image className='fixed bottom-10 left-20 transform -translate-x-1/2 z-[10]'
+        width={100} height={100} src='/smartcerejeiras.png' alt='logo' />
     </div>
 
   );
