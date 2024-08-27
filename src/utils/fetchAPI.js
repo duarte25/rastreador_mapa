@@ -65,7 +65,7 @@ export const fetchApi = async (route, method, data, ...props) => {
 export const fetchApiDespaginado = async (route, method, body, ...props) => {
   let result = [];
   let pagina = 1;
-  let maxPaginas = 100; // Só para não ir infinito (máximo 100 fetchs)
+  let maxPaginas = 10; // Só para não ir infinito (máximo 100 fetchs)
   while(pagina < maxPaginas) {
       const { data, ...fetchInfo } = await fetchApi(route, method, {
           ...body,

@@ -20,9 +20,9 @@ const InputDate = dynamic(() => import('@/component/inputDate'), { ssr: false })
 
 export default function Home() {
   const [open, setOpen] = useState(true);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const [selectedDateInitial, setSelectedDateInitial] = useState(null)
-  const [selectedDateLast, setSelectedDateLast] = useState(null)
+  const [selectedVehicle, setSelectedVehicle] = useState("1610025778");
+  const [selectedDateInitial, setSelectedDateInitial] = useState(new Date("2024-08-22T08:00:00"))
+  const [selectedDateLast, setSelectedDateLast] = useState(new Date("2024-08-22T15:00:00"))
 
   // Converte selectedDateInitial para um objeto Date (opcional)
   const dateConvertInitial = new Date(selectedDateInitial);
