@@ -42,7 +42,7 @@ const RealTimeTrackers = ({ markers, location, error }) => {
           >
           <Popup>
             <h4>Serial: {marker.serial}</h4>
-            <h4 className="decoration-gray-50" >Data: <FormattedDate date={marker.data_conectado} /></h4>
+            <h4 className="decoration-gray-50" >Data: <FormattedDate date={marker.ultima_posicao.data} /></h4>
             <h4>Velocidade: {marker.ultima_posicao.vel}km/h</h4>
           </Popup>
         </CustomMarker>
